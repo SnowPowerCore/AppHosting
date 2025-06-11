@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 
 namespace AppHosting.Xamarin.Forms.Extensions
 {

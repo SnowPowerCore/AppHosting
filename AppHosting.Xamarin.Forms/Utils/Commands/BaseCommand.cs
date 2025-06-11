@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Reflection;
 using System.Threading;
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 using WeakEventManager = AsyncAwaitBestPractices.WeakEventManager;
 
 namespace AppHosting.Xamarin.Forms.Utils.Commands

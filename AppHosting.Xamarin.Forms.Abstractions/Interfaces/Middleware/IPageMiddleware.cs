@@ -1,6 +1,6 @@
 ﻿using AppHosting.Xamarin.Forms.Abstractions.Delegates;
 using System.Threading.Tasks;
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 
 namespace AppHosting.Xamarin.Forms.Abstractions.Interfaces.Middleware
 {

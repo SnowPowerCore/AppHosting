@@ -1,8 +1,8 @@
 ﻿using Android.Content;
 using Android.OS;
 using System;
-using Xamarin.Forms;
-using Xamarin.Forms.Platform.Android;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Platform;
 
 namespace AppHosting.Xamarin.Forms.Android
 {

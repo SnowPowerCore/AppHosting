@@ -1,11 +1,11 @@
 ﻿using AppHosting.Xamarin.Forms.Extensions;
 using AppHosting.Xamarin.Forms.Utils.Wrappers;
 using System;
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 
 namespace AppHosting.Xamarin.Forms.Utils.DataTemplate
 {
-    public class HostedDataTemplate : global::Xamarin.Forms.DataTemplate
+    public class HostedDataTemplate : Microsoft.Maui.Controls.DataTemplate
     {
         public HostedDataTemplate() { }
 

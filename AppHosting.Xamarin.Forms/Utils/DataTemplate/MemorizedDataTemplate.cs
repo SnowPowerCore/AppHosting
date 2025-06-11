@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AppHosting.Xamarin.Forms.Utils.DataTemplate
 {
-    public class MemorizedDataTemplate : global::Xamarin.Forms.DataTemplate
+    public class MemorizedDataTemplate : Microsoft.Maui.Controls.DataTemplate
     {
         private static readonly Dictionary<Type, object> _createdContents = new();
 

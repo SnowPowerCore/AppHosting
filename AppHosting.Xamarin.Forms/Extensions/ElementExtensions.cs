@@ -4,7 +4,7 @@ using AppHosting.Xamarin.Forms.Utils.Commands;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 
 namespace AppHosting.Xamarin.Forms.Extensions
 {

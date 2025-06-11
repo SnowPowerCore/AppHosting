@@ -4,7 +4,7 @@ using AsyncAwaitBestPractices;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 
 namespace AppHosting.Xamarin.Forms.Controls
 {

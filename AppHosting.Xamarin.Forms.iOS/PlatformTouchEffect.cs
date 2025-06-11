@@ -8,11 +8,13 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using UIKit;
-using Xamarin.Forms;
-using Xamarin.Forms.Platform.iOS;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Platform;
+using Microsoft.Maui.Platform;
 
 [assembly: ResolutionGroupName(nameof(AppHosting))]
 [assembly: ExportEffect(typeof(PlatformTouchEffect), nameof(TouchEffect))]
+
 namespace AppHosting.Xamarin.Forms.iOS
 {
     [Preserve(AllMembers = true)]
@@ -39,21 +41,22 @@ namespace AppHosting.Xamarin.Forms.iOS
 
             touchGesture = new TouchUITapGestureRecognizer(effect);
 
-            if (((View as IVisualNativeElementRenderer)?.Control ?? View) is UIButton button)
+            var nativeView = (Element as VisualElement)?.Handler?.PlatformView as UIView ?? View;
+            if (nativeView is UIButton button)
             {
                 button.AllTouchEvents += PreventButtonHighlight;
                 ((TouchUITapGestureRecognizer)touchGesture).IsButton = true;
             }
 
-            View.AddGestureRecognizer(touchGesture);
+            nativeView.AddGestureRecognizer(touchGesture);
 
             if (XCT.IsiOS13OrNewer)
             {
                 hoverGesture = new UIHoverGestureRecognizer(OnHover);
-                View.AddGestureRecognizer(hoverGesture);
+                nativeView.AddGestureRecognizer(hoverGesture);
             }
 
-            View.UserInteractionEnabled = true;
+            nativeView.UserInteractionEnabled = true;
         }
 
         protected override void OnDetached()
@@ -61,19 +64,20 @@ namespace AppHosting.Xamarin.Forms.iOS
             if (effect?.Element == null)
                 return;
 
-            if (((View as IVisualNativeElementRenderer)?.Control ?? View) is UIButton button)
+            var nativeView = (Element as VisualElement)?.Handler?.PlatformView as UIView ?? View;
+            if (nativeView is UIButton button)
                 button.AllTouchEvents -= PreventButtonHighlight;
 
             if (touchGesture != null)
             {
-                View?.RemoveGestureRecognizer(touchGesture);
+                nativeView?.RemoveGestureRecognizer(touchGesture);
                 touchGesture?.Dispose();
                 touchGesture = null;
             }
 
             if (hoverGesture != null)
             {
-                View?.RemoveGestureRecognizer(hoverGesture);
+                nativeView?.RemoveGestureRecognizer(hoverGesture);
                 hoverGesture?.Dispose();
                 hoverGesture = null;
             }
@@ -128,7 +132,7 @@ namespace AppHosting.Xamarin.Forms.iOS
 
         public bool IsButton { get; set; }
 
-        private UIView Renderer => (UIView)effect?.Element.GetRenderer();
+        private UIView Renderer => effect?.Element?.Handler?.PlatformView as UIView;
 
         public override void TouchesBegan(NSSet touches, UIEvent evt)
         {
@@ -239,7 +243,7 @@ namespace AppHosting.Xamarin.Forms.iOS
                 return;
 
             var control = effect.Element;
-            var renderer = (UIView)control?.GetRenderer();
+            var renderer = (UIView)control?.Handler?.PlatformView;
             if (renderer is default(UIView))
                 return;
 
@@ -258,7 +262,7 @@ namespace AppHosting.Xamarin.Forms.iOS
             UIViewPropertyAnimator.CreateRunningPropertyAnimator(.2, 0, UIViewAnimationOptions.AllowUserInteraction,
                 () =>
                 {
-                    if (color == Color.Default)
+                    if (color is null)
                         renderer.Layer.Opacity = isStarted ? 0.5f : (float)control.Opacity;
                     else
                         renderer.Layer.BackgroundColor = (isStarted ? color : control.BackgroundColor).ToCGColor();
@@ -294,13 +298,11 @@ namespace AppHosting.Xamarin.Forms.iOS
             if (recognizer.View.IsDescendantOfView(touch.View))
                 return true;
 
-            var elementRenderer = (IVisualNativeElementRenderer)recognizer.View;
-            if (elementRenderer is default(IVisualNativeElementRenderer) ||
-                elementRenderer.Control is default(UIView))
+            var nativeView = recognizer.View;
+            if (nativeView is null)
                 return false;
 
-            if (elementRenderer.Control == touch.View ||
-                elementRenderer.Control.Subviews.Any(view => view == touch.View))
+            if (nativeView == touch.View || nativeView.Subviews.Any(view => view == touch.View))
                 return true;
 
             return false;

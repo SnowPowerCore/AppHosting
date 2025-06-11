@@ -3,7 +3,7 @@ using AppHosting.Xamarin.Forms.Abstractions.Interfaces.Middleware;
 using AppHosting.Xamarin.Forms.Attributes;
 using AppHosting.Xamarin.Forms.Extensions;
 using System.Threading.Tasks;
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 
 namespace AppHosting.Xamarin.Forms.Middleware
 {

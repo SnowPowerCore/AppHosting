@@ -11,16 +11,18 @@ using AppHosting.Xamarin.Forms.Shared.Utils.Touch;
 using System;
 using System.ComponentModel;
 using System.Linq;
-using Xamarin.Forms;
-using Xamarin.Forms.Platform.Android;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Platform;
 using AView = Android.Views.View;
 using Color = Android.Graphics.Color;
 using PlatformTouchEffect = AppHosting.Xamarin.Forms.Android.PlatformTouchEffect;
-using XColor = Xamarin.Forms.Color;
-using XView = Xamarin.Forms.View;
+using XColor = Microsoft.Maui.Graphics.Color;
+using XView = Microsoft.Maui.Controls.View;
+using Microsoft.Maui.Graphics;
 
-[assembly: ResolutionGroupName(nameof(AppHosting))]
-[assembly: ExportEffect(typeof(PlatformTouchEffect), nameof(TouchEffect))]
+[assembly: Microsoft.Maui.Controls.ResolutionGroupName(nameof(AppHosting))]
+[assembly: Microsoft.Maui.Controls.ExportEffect(typeof(PlatformTouchEffect), nameof(TouchEffect))]
+
 namespace AppHosting.Xamarin.Forms.Android
 {
     [Preserve(AllMembers = true)]

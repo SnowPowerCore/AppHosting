@@ -4,7 +4,7 @@ using AppHosting.Xamarin.Forms.Extensions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 
 namespace AppHosting.Xamarin.Forms.Middleware
 {

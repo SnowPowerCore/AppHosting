@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 using static System.Math;
+using Microsoft.Maui;
+using Microsoft.Maui.Graphics;
 
 namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
 {
@@ -363,9 +365,9 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             var hoveredBackgroundColor = sender.HoveredBackgroundColor;
 
             if (sender.Element == null
-                || normalBackgroundColor == Color.Default
-                    && pressedBackgroundColor == Color.Default
-                    && hoveredBackgroundColor == Color.Default)
+                || normalBackgroundColor == null
+                    && pressedBackgroundColor == null
+                    && hoveredBackgroundColor == null)
             {
                 return Task.FromResult(false);
             }
@@ -598,10 +600,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             return element?.RotateYTo(rotationY, (uint)Abs(duration), easing) ?? Task.FromResult(false);
         }
 
-        private Color GetBackgroundColor(Color color)
-            => color != Color.Default
-                ? color
-                : defaultBackgroundColor;
+        private Color GetBackgroundColor(Color color) => color ?? defaultBackgroundColor;
 
         private Task RunAnimationTask(TouchEffect sender, TouchState touchState, HoverState hoverState, CancellationToken token, double? durationMultiplier = null)
         {

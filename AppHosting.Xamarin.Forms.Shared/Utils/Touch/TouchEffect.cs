@@ -4,8 +4,10 @@ using AsyncAwaitBestPractices;
 using System;
 using System.Linq;
 using System.Windows.Input;
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 using WeakEventManager = AsyncAwaitBestPractices.WeakEventManager;
+using Microsoft.Maui;
+using Microsoft.Maui.Graphics;
 
 namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
 {
@@ -147,21 +149,21 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             nameof(NormalBackgroundColor),
             typeof(Color),
             typeof(TouchEffect),
-            Color.Default,
+            default,
             propertyChanged: ForceUpdateStateAndTryGenerateEffect);
 
         public static readonly BindableProperty HoveredBackgroundColorProperty = BindableProperty.CreateAttached(
             nameof(HoveredBackgroundColor),
             typeof(Color),
             typeof(TouchEffect),
-            Color.Default,
+            default,
             propertyChanged: ForceUpdateStateAndTryGenerateEffect);
 
         public static readonly BindableProperty PressedBackgroundColorProperty = BindableProperty.CreateAttached(
             nameof(PressedBackgroundColor),
             typeof(Color),
             typeof(TouchEffect),
-            Color.Default,
+            default,
             propertyChanged: ForceUpdateStateAndTryGenerateEffect);
 
         public static readonly BindableProperty NormalOpacityProperty = BindableProperty.CreateAttached(
@@ -400,7 +402,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             nameof(NativeAnimationColor),
             typeof(Color),
             typeof(TouchEffect),
-            Color.Default,
+            default,
             propertyChanged: TryGenerateEffect);
 
         public static readonly BindableProperty NativeAnimationRadiusProperty = BindableProperty.CreateAttached(
@@ -1202,8 +1204,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
 
         private void SetChildrenInputTransparent(bool value)
         {
-            var layout = (Layout)Element;
-            if (layout is default(Layout))
+            if (Element is not Layout layout)
                 return;
 
             layout.ChildAdded -= OnLayoutChildAdded;
@@ -1212,16 +1213,19 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
                 return;
 
             layout.InputTransparent = false;
-            foreach (var view in layout.Children)
-                OnLayoutChildAdded(layout, new ElementEventArgs(view));
+            foreach (var child in layout.Children)
+            {
+                if (child is Element element)
+                    OnLayoutChildAdded(layout, new ElementEventArgs(element));
+            }
 
             layout.ChildAdded += OnLayoutChildAdded;
         }
 
-        private void OnLayoutChildAdded(object? sender, ElementEventArgs e)
+        private void OnLayoutChildAdded(object sender, ElementEventArgs e)
         {
-            var view = (View)e.Element;
-            if (view is default(View))
+            var view = e.Element as View;
+            if (view is null)
                 return;
 
             if (!ShouldMakeChildrenInputTransparent)

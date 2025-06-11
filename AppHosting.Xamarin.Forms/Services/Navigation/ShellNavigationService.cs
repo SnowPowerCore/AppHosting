@@ -3,13 +3,13 @@ using AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Processors;
 using AppHosting.Xamarin.Forms.Controls;
 using AppHosting.Xamarin.Forms.Extensions;
 using AsyncAwaitBestPractices;
-using Rg.Plugins.Popup.Pages;
-using Rg.Plugins.Popup.Services;
+using Microsoft.Maui.Controls;
+using RGPopup.Maui.Pages;
+using RGPopup.Maui.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Xamarin.Forms;
 using NavigationEventArgs = AppHosting.Xamarin.Forms.Abstractions.EventArgs.NavigationEventArgs;
 
 namespace AppHosting.Xamarin.Forms.Services.Navigation
