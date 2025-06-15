@@ -6,26 +6,22 @@ using Android.Runtime;
 using Android.Views;
 using Android.Views.Accessibility;
 using Android.Widget;
-using AppHosting.Xamarin.Forms.Shared.Enums;
-using AppHosting.Xamarin.Forms.Shared.Utils.Touch;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Platform;
+using AppHosting.Xamarin.Forms.Shared.Utils.Touch;
+using AppHosting.Xamarin.Forms.Shared.Enums;
 using AView = Android.Views.View;
-using Color = Android.Graphics.Color;
-using PlatformTouchEffect = AppHosting.Xamarin.Forms.Android.PlatformTouchEffect;
 using XColor = Microsoft.Maui.Graphics.Color;
 using XView = Microsoft.Maui.Controls.View;
-using Microsoft.Maui.Graphics;
 
-[assembly: Microsoft.Maui.Controls.ResolutionGroupName(nameof(AppHosting))]
-[assembly: Microsoft.Maui.Controls.ExportEffect(typeof(PlatformTouchEffect), nameof(TouchEffect))]
+[assembly: ResolutionGroupName(nameof(AppHosting))]
+[assembly: ExportEffect(typeof(AppHosting.Xamarin.Forms.Android.PlatformTouchEffect), nameof(TouchEffect))]
 
 namespace AppHosting.Xamarin.Forms.Android
 {
-    [Preserve(AllMembers = true)]
     public class PlatformTouchEffect : PlatformEffect
     {
         private static readonly XColor _defaultNativeAnimationColor = XColor.FromRgba(128, 128, 128, 64);
@@ -43,7 +39,7 @@ namespace AppHosting.Xamarin.Forms.Android
 
         private AView View => Control ?? Container;
 
-        private ViewGroup Group => Container ?? Control as ViewGroup;
+        private ViewGroup Group => (Container as ViewGroup) ?? (Control as ViewGroup);
 
         internal bool IsCanceled { get; set; }
 
@@ -55,9 +51,14 @@ namespace AppHosting.Xamarin.Forms.Android
             => ripple != null &&
                 ripple.IsAlive() &&
                 View.IsAlive() &&
-                (XCT.SdkInt >= (int)BuildVersionCodes.M ? View.Foreground : View.Background) == ripple &&
+                View.Background == ripple &&
                 Element is XView view &&
                 view.GestureRecognizers.Any(gesture => gesture is TapGestureRecognizer);
+
+        [System.Diagnostics.CodeAnalysis.DynamicDependency(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(PlatformTouchEffect))]
+        public PlatformTouchEffect()
+        {
+        }
 
         protected override void OnAttached()
         {
@@ -241,9 +242,9 @@ namespace AppHosting.Xamarin.Forms.Android
             if (sender is not AView view)
                 return;
 
-            var screenPointerCoords = new Point(view.Left + e.Event.GetX(), view.Top + e.Event.GetY());
-            var viewRect = new Rectangle(view.Left, view.Top, view.Right - view.Left, view.Bottom - view.Top);
-            var status = viewRect.Contains(screenPointerCoords) ? TouchStatus.Started : TouchStatus.Canceled;
+            var rect = new global::Android.Graphics.RectF(view.Left, view.Top, view.Right, view.Bottom);
+            var point = new global::Android.Graphics.PointF(view.Left + e.Event.GetX(), view.Top + e.Event.GetY());
+            var status = rect.Contains(point.X, point.Y) ? TouchStatus.Started : TouchStatus.Canceled;
 
             if (isHoverSupported && (status == TouchStatus.Canceled && effect?.HoverStatus == HoverStatus.Entered
                 || status == TouchStatus.Started && effect?.HoverStatus == HoverStatus.Exited))
@@ -326,7 +327,7 @@ namespace AppHosting.Xamarin.Forms.Android
             }
             else if (rippleView == null)
             {
-                UpdateRipple(XColor.Transparent);
+                UpdateRipple(XColor.FromRgba(0, 0, 0, 0));
             }
         }
 
@@ -356,9 +357,7 @@ namespace AppHosting.Xamarin.Forms.Android
         {
             RemoveRipple();
 
-            var drawable = XCT.SdkInt >= (int)BuildVersionCodes.M && Group == null
-                ? View?.Foreground
-                : View?.Background;
+            var drawable = View?.Background;
 
             var isBorderLess = effect?.NativeAnimationBorderless ?? false;
             var isEmptyDrawable = Element is Layout || drawable == null;
@@ -369,7 +368,7 @@ namespace AppHosting.Xamarin.Forms.Android
             else
             {
                 var content = isEmptyDrawable || isBorderLess ? null : drawable;
-                var mask = isEmptyDrawable && !isBorderLess ? new ColorDrawable(Color.White) : null;
+                var mask = isEmptyDrawable && !isBorderLess ? new ColorDrawable(global::Android.Graphics.Color.White) : null;
 
                 ripple = new RippleDrawable(GetColorStateList(color), content, mask);
             }
@@ -384,15 +383,12 @@ namespace AppHosting.Xamarin.Forms.Android
 
             if (View != null)
             {
-                if (XCT.SdkInt >= (int)BuildVersionCodes.M && View.Foreground == ripple)
-                    View.Foreground = null;
-                else if (View.Background == ripple)
+                if (View.Background == ripple)
                     View.Background = null;
             }
 
             if (rippleView != null)
             {
-                rippleView.Foreground = null;
                 rippleView.Background = null;
             }
 
@@ -411,8 +407,6 @@ namespace AppHosting.Xamarin.Forms.Android
             rippleColor = color;
             rippleRadius = effect.NativeAnimationRadius;
             ripple?.SetColor(GetColorStateList(color));
-            if (XCT.SdkInt >= (int)BuildVersionCodes.M && ripple != null)
-                ripple.Radius = (int)(View.Context?.Resources?.DisplayMetrics?.Density * effect?.NativeAnimationRadius ?? throw new NullReferenceException());
         }
 
         private void ApplyRipple()
@@ -424,11 +418,7 @@ namespace AppHosting.Xamarin.Forms.Android
 
             if (Group == null)
             {
-                if (XCT.SdkInt >= (int)BuildVersionCodes.M)
-                    View.Foreground = ripple;
-                else
-                    View.Background = ripple;
-
+                View.Background = ripple;
                 return;
             }
 
@@ -448,32 +438,29 @@ namespace AppHosting.Xamarin.Forms.Android
 
             Group.SetClipChildren(!isBorderless);
 
-            if (isBorderless)
-            {
-                rippleView.Background = null;
-                rippleView.Foreground = ripple;
-            }
-            else
-            {
-                rippleView.Foreground = null;
-                rippleView.Background = ripple;
-            }
+            rippleView.Background = ripple;
         }
 
         private ColorStateList GetColorStateList(XColor color)
         {
             var animationColor = color;
-            if (animationColor == XColor.Default)
+            if (animationColor.Alpha == 0 && animationColor.Red == 0 && animationColor.Green == 0 && animationColor.Blue == 0)
                 animationColor = _defaultNativeAnimationColor;
+
+            var androidColor = global::Android.Graphics.Color.Argb(
+                (int)(animationColor.Alpha * 255),
+                (int)(animationColor.Red * 255),
+                (int)(animationColor.Green * 255),
+                (int)(animationColor.Blue * 255));
 
             return new ColorStateList(
                 new[] { new int[] { } },
-                new[] { (int)animationColor.ToAndroid() });
+                new[] { (int)androidColor });
         }
 
         private void OnLayoutChange(object sender, AView.LayoutChangeEventArgs e)
         {
-            if (sender is not AView view || (Group as IVisualElementRenderer)?.Element == null || rippleView == null)
+            if (sender is not AView view || rippleView == null)
                 return;
 
             rippleView.Right = view.Width;

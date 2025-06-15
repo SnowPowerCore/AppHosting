@@ -17,7 +17,6 @@ using Microsoft.Maui.Platform;
 
 namespace AppHosting.Xamarin.Forms.iOS
 {
-    [Preserve(AllMembers = true)]
     public class PlatformTouchEffect : PlatformEffect
     {
         private UIGestureRecognizer touchGesture;
@@ -27,6 +26,11 @@ namespace AppHosting.Xamarin.Forms.iOS
         private TouchEffect effect;
 
         private UIView View => Container ?? Control;
+
+        [System.Diagnostics.CodeAnalysis.DynamicDependency(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(PlatformTouchEffect))]
+        public PlatformTouchEffect()
+        {
+        }
 
         protected override void OnAttached()
         {

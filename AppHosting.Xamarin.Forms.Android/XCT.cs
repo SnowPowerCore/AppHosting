@@ -2,13 +2,13 @@
 using Android.OS;
 using System;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.Platform;
+using AView = Android.Views.View;
 
 namespace AppHosting.Xamarin.Forms.Android
 {
     internal static partial class XCT
     {
-        private static Context? context;
+        private static Context context;
         private static int? sdkInt;
 
         /// <summary>
@@ -18,13 +18,15 @@ namespace AppHosting.Xamarin.Forms.Android
         {
             get
             {
-                var page = Application.Current.MainPage ?? throw new NullReferenceException($"{nameof(Application.MainPage)} cannot be null");
-                var renderer = page.GetRenderer();
+                var window = Application.Current.Windows.Count > 0 ? Application.Current.Windows[0] : throw new NullReferenceException($"No windows available");
+                var page = window.Page ?? throw new NullReferenceException($"Window.Page cannot be null");
+                var handler = page.Handler ?? throw new NullReferenceException($"Page.Handler cannot be null");
+                var platformView = handler.PlatformView as AView ?? throw new NullReferenceException($"PlatformView is not an Android.Views.View");
 
-                if (renderer?.View.Context is not null)
-                    context = renderer.View.Context;
+                if (platformView.Context is not null)
+                    context = platformView.Context;
 
-                return renderer?.View.Context ?? context ?? throw new NullReferenceException($"{nameof(Context)} cannot be null");
+                return platformView.Context ?? context ?? throw new NullReferenceException($"{nameof(Context)} cannot be null");
             }
         }
 
