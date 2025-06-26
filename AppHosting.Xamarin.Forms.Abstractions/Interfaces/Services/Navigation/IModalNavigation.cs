@@ -4,16 +4,15 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using NavigationEventArgs = AppHosting.Xamarin.Forms.Abstractions.EventArgs.NavigationEventArgs;
 
-namespace AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Navigation
+namespace AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Navigation;
+
+public interface IModalNavigation
 {
-    public interface IModalNavigation
-    {
-        event EventHandler<NavigationEventArgs> ModalNavigating;
+    event EventHandler<NavigationEventArgs> ModalNavigating;
 
-        IReadOnlyList<Page> Modals { get; }
+    IReadOnlyList<Page> Modals { get; }
 
-        Task OpenModalAsync<TPage>(TPage modal, bool animated = true);
+    Task OpenModalAsync<TPage>(TPage modal, bool animated = true);
 
-        Task CloseModalAsync(bool animated = true);
-    }
+    Task CloseModalAsync(bool animated = true);
 }

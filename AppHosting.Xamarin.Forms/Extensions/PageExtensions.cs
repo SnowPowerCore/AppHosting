@@ -2,18 +2,17 @@
 using System;
 using System.Threading.Tasks;
 
-namespace AppHosting.Xamarin.Forms.Extensions
-{
-    public static class PageExtensions
-    {
-        public static Action GetPageActionFromBindingContext(this object bindingContext, string taskName)
-        {
-            var method = bindingContext
-                .GetType()
-                .GetMethod(taskName);
+namespace AppHosting.Xamarin.Forms.Extensions;
 
-            return () => ((Task)method.Invoke(bindingContext, []))
-                .SafeFireAndForget();
-        }
+public static class PageExtensions
+{
+    public static Action GetPageActionFromBindingContext(this object bindingContext, string taskName)
+    {
+        var method = bindingContext
+            .GetType()
+            .GetMethod(taskName);
+
+        return () => ((Task)method.Invoke(bindingContext, []))
+            .SafeFireAndForget();
     }
 }

@@ -3,36 +3,35 @@ using AppHosting.Xamarin.Forms.Utils.Wrappers;
 using System;
 using Microsoft.Maui.Controls;
 
-namespace AppHosting.Xamarin.Forms.Utils.DataTemplate
+namespace AppHosting.Xamarin.Forms.Utils.DataTemplate;
+
+public class HostedDataTemplate : Microsoft.Maui.Controls.DataTemplate
 {
-    public class HostedDataTemplate : Microsoft.Maui.Controls.DataTemplate
+    public HostedDataTemplate() { }
+
+    public HostedDataTemplate(TypeWrapper typeWrapper) : base(() =>
     {
-        public HostedDataTemplate() { }
-
-        public HostedDataTemplate(TypeWrapper typeWrapper) : base(() =>
+        var type = typeWrapper.Type;
+        var data = Activator.CreateInstance(type);
+        if (data is Element xfElement)
         {
-            var type = typeWrapper.Type;
-            var data = Activator.CreateInstance(type);
-            if (data is Element xfElement)
-            {
-                var commandAttrs = xfElement.GetElementCommandAttributes();
-                var asyncCommandAttrs = xfElement.GetElementAsyncCommandAttributes();
-                var attachedCommandAttrs = xfElement.GetElementAttachedCommandAttributes();
-                var attachedLongPressCommandAttrs = xfElement.GetElementAttachedLongPressCommandAttributes();
-                var attachedAsyncCommandAttrs = xfElement.GetElementAttachedAsyncCommandAttributes();
-                var attachedAsyncLongPressCommandAttrs = xfElement.GetElementAttachedAsyncLongPressCommandAttributes();
+            var commandAttrs = xfElement.GetElementCommandAttributes();
+            var asyncCommandAttrs = xfElement.GetElementAsyncCommandAttributes();
+            var attachedCommandAttrs = xfElement.GetElementAttachedCommandAttributes();
+            var attachedLongPressCommandAttrs = xfElement.GetElementAttachedLongPressCommandAttributes();
+            var attachedAsyncCommandAttrs = xfElement.GetElementAttachedAsyncCommandAttributes();
+            var attachedAsyncLongPressCommandAttrs = xfElement.GetElementAttachedAsyncLongPressCommandAttributes();
 
-                var parentBindingContext = typeWrapper.Parent.BindingContext;
-                data = xfElement
-                    .AddAttachedAsyncCommands(attachedAsyncCommandAttrs, parentBindingContext)
-                    .AddAttachedCommands(attachedCommandAttrs, parentBindingContext)
-                    .AddAttachedAsyncLongPressCommands(attachedAsyncLongPressCommandAttrs, parentBindingContext)
-                    .AddAttachedLongPressCommands(attachedLongPressCommandAttrs, parentBindingContext)
-                    .AddAsyncCommands(asyncCommandAttrs, parentBindingContext)
-                    .AddCommands(commandAttrs, parentBindingContext);
-            }
-            return data;
-        })
-        { }
-    }
+            var parentBindingContext = typeWrapper.Parent.BindingContext;
+            data = xfElement
+                .AddAttachedAsyncCommands(attachedAsyncCommandAttrs, parentBindingContext)
+                .AddAttachedCommands(attachedCommandAttrs, parentBindingContext)
+                .AddAttachedAsyncLongPressCommands(attachedAsyncLongPressCommandAttrs, parentBindingContext)
+                .AddAttachedLongPressCommands(attachedLongPressCommandAttrs, parentBindingContext)
+                .AddAsyncCommands(asyncCommandAttrs, parentBindingContext)
+                .AddCommands(commandAttrs, parentBindingContext);
+        }
+        return data;
+    })
+    { }
 }

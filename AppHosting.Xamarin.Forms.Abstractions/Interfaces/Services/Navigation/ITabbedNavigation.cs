@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Navigation
+namespace AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Navigation;
+
+public interface ITabbedNavigation
 {
-    public interface ITabbedNavigation
-    {
-        Task SwitchItemAsync(int index);
-    }
+    Task SwitchItemAsync(int index);
 }

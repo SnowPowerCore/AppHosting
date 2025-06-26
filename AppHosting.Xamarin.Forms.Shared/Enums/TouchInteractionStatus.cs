@@ -1,8 +1,7 @@
-﻿namespace AppHosting.Xamarin.Forms.Shared.Enums
+﻿namespace AppHosting.Xamarin.Forms.Shared.Enums;
+
+public enum TouchInteractionStatus
 {
-    public enum TouchInteractionStatus
-    {
-        Started,
-        Completed
-    }
+    Started,
+    Completed
 }

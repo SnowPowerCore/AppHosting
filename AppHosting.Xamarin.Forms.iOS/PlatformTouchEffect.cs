@@ -15,301 +15,300 @@ using Microsoft.Maui.Platform;
 [assembly: ResolutionGroupName(nameof(AppHosting))]
 [assembly: ExportEffect(typeof(PlatformTouchEffect), nameof(TouchEffect))]
 
-namespace AppHosting.Xamarin.Forms.iOS
+namespace AppHosting.Xamarin.Forms.iOS;
+
+public class PlatformTouchEffect : PlatformEffect
 {
-    public class PlatformTouchEffect : PlatformEffect
+    private UIGestureRecognizer touchGesture;
+
+    private UIGestureRecognizer hoverGesture;
+
+    private TouchEffect effect;
+
+    private UIView View => Container ?? Control;
+
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(PlatformTouchEffect))]
+    public PlatformTouchEffect()
     {
-        private UIGestureRecognizer touchGesture;
+    }
 
-        private UIGestureRecognizer hoverGesture;
+    protected override void OnAttached()
+    {
+        effect = TouchEffect.PickFrom(Element);
+        if (effect?.IsDisabled ?? true)
+            return;
 
-        private TouchEffect effect;
+        effect.Element = (VisualElement)Element;
 
-        private UIView View => Container ?? Control;
+        if (View == null)
+            return;
 
-        [System.Diagnostics.CodeAnalysis.DynamicDependency(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(PlatformTouchEffect))]
-        public PlatformTouchEffect()
+        touchGesture = new TouchUITapGestureRecognizer(effect);
+
+        var nativeView = (Element as VisualElement)?.Handler?.PlatformView as UIView ?? View;
+        if (nativeView is UIButton button)
         {
+            button.AllTouchEvents += PreventButtonHighlight;
+            ((TouchUITapGestureRecognizer)touchGesture).IsButton = true;
         }
 
-        protected override void OnAttached()
+        nativeView.AddGestureRecognizer(touchGesture);
+
+        if (XCT.IsiOS13OrNewer)
         {
-            effect = TouchEffect.PickFrom(Element);
-            if (effect?.IsDisabled ?? true)
-                return;
-
-            effect.Element = (VisualElement)Element;
-
-            if (View == null)
-                return;
-
-            touchGesture = new TouchUITapGestureRecognizer(effect);
-
-            var nativeView = (Element as VisualElement)?.Handler?.PlatformView as UIView ?? View;
-            if (nativeView is UIButton button)
-            {
-                button.AllTouchEvents += PreventButtonHighlight;
-                ((TouchUITapGestureRecognizer)touchGesture).IsButton = true;
-            }
-
-            nativeView.AddGestureRecognizer(touchGesture);
-
-            if (XCT.IsiOS13OrNewer)
-            {
-                hoverGesture = new UIHoverGestureRecognizer(OnHover);
-                nativeView.AddGestureRecognizer(hoverGesture);
-            }
-
-            nativeView.UserInteractionEnabled = true;
+            hoverGesture = new UIHoverGestureRecognizer(OnHover);
+            nativeView.AddGestureRecognizer(hoverGesture);
         }
 
-        protected override void OnDetached()
+        nativeView.UserInteractionEnabled = true;
+    }
+
+    protected override void OnDetached()
+    {
+        if (effect?.Element == null)
+            return;
+
+        var nativeView = (Element as VisualElement)?.Handler?.PlatformView as UIView ?? View;
+        if (nativeView is UIButton button)
+            button.AllTouchEvents -= PreventButtonHighlight;
+
+        if (touchGesture != null)
         {
-            if (effect?.Element == null)
-                return;
-
-            var nativeView = (Element as VisualElement)?.Handler?.PlatformView as UIView ?? View;
-            if (nativeView is UIButton button)
-                button.AllTouchEvents -= PreventButtonHighlight;
-
-            if (touchGesture != null)
-            {
-                nativeView?.RemoveGestureRecognizer(touchGesture);
-                touchGesture?.Dispose();
-                touchGesture = null;
-            }
-
-            if (hoverGesture != null)
-            {
-                nativeView?.RemoveGestureRecognizer(hoverGesture);
-                hoverGesture?.Dispose();
-                hoverGesture = null;
-            }
-
-            effect.Element = null;
-            effect = null;
+            nativeView?.RemoveGestureRecognizer(touchGesture);
+            touchGesture?.Dispose();
+            touchGesture = null;
         }
 
-        private void OnHover()
+        if (hoverGesture != null)
         {
-            if (effect == null || effect.IsDisabled)
-                return;
-
-            switch (hoverGesture?.State)
-            {
-                case UIGestureRecognizerState.Began:
-                case UIGestureRecognizerState.Changed:
-                    effect?.HandleHover(HoverStatus.Entered);
-                    break;
-                case UIGestureRecognizerState.Ended:
-                    effect?.HandleHover(HoverStatus.Exited);
-                    break;
-            }
+            nativeView?.RemoveGestureRecognizer(hoverGesture);
+            hoverGesture?.Dispose();
+            hoverGesture = null;
         }
 
-        private void PreventButtonHighlight(object sender, EventArgs args)
-        {
-            var button = (UIButton)sender;
-            if (button is default(UIButton))
-                throw new ArgumentException($"{nameof(sender)} must be Type {nameof(UIButton)}", nameof(sender));
+        effect.Element = null;
+        effect = null;
+    }
 
-            button.Highlighted = false;
+    private void OnHover()
+    {
+        if (effect == null || effect.IsDisabled)
+            return;
+
+        switch (hoverGesture?.State)
+        {
+            case UIGestureRecognizerState.Began:
+            case UIGestureRecognizerState.Changed:
+                effect?.HandleHover(HoverStatus.Entered);
+                break;
+            case UIGestureRecognizerState.Ended:
+                effect?.HandleHover(HoverStatus.Exited);
+                break;
         }
     }
 
-    internal sealed class TouchUITapGestureRecognizer : UIGestureRecognizer
+    private void PreventButtonHighlight(object sender, EventArgs args)
     {
-        private TouchEffect effect;
-        private float? defaultRadius;
-        private float? defaultShadowRadius;
-        private float? defaultShadowOpacity;
-        private CGPoint? startPoint;
+        var button = (UIButton)sender;
+        if (button is default(UIButton))
+            throw new ArgumentException($"{nameof(sender)} must be Type {nameof(UIButton)}", nameof(sender));
 
-        public TouchUITapGestureRecognizer(TouchEffect effect)
+        button.Highlighted = false;
+    }
+}
+
+internal sealed class TouchUITapGestureRecognizer : UIGestureRecognizer
+{
+    private TouchEffect effect;
+    private float? defaultRadius;
+    private float? defaultShadowRadius;
+    private float? defaultShadowOpacity;
+    private CGPoint? startPoint;
+
+    public TouchUITapGestureRecognizer(TouchEffect effect)
+    {
+        this.effect = effect;
+        CancelsTouchesInView = false;
+        Delegate = new TouchUITapGestureRecognizerDelegate();
+    }
+
+    public bool IsCanceled { get; set; } = true;
+
+    public bool IsButton { get; set; }
+
+    private UIView Renderer => effect?.Element?.Handler?.PlatformView as UIView;
+
+    public override void TouchesBegan(NSSet touches, UIEvent evt)
+    {
+        if (effect?.IsDisabled ?? true)
+            return;
+
+        IsCanceled = false;
+        startPoint = GetTouchPoint(touches);
+
+        HandleTouch(TouchStatus.Started, TouchInteractionStatus.Started).SafeFireAndForget();
+
+        base.TouchesBegan(touches, evt);
+    }
+
+    public override void TouchesEnded(NSSet touches, UIEvent evt)
+    {
+        if (effect?.IsDisabled ?? true)
+            return;
+
+        HandleTouch(effect?.Status == TouchStatus.Started ? TouchStatus.Completed : TouchStatus.Canceled, TouchInteractionStatus.Completed).SafeFireAndForget();
+
+        IsCanceled = true;
+
+        base.TouchesEnded(touches, evt);
+    }
+
+    public override void TouchesCancelled(NSSet touches, UIEvent evt)
+    {
+        if (effect?.IsDisabled ?? true)
+            return;
+
+        HandleTouch(TouchStatus.Canceled, TouchInteractionStatus.Completed).SafeFireAndForget();
+
+        IsCanceled = true;
+
+        base.TouchesCancelled(touches, evt);
+    }
+
+    public override void TouchesMoved(NSSet touches, UIEvent evt)
+    {
+        if (effect?.IsDisabled ?? true)
+            return;
+
+        var disallowTouchThreshold = effect.DisallowTouchThreshold;
+        var point = GetTouchPoint(touches);
+        if (point != null && startPoint != null && disallowTouchThreshold > 0)
         {
-            this.effect = effect;
-            CancelsTouchesInView = false;
-            Delegate = new TouchUITapGestureRecognizerDelegate();
-        }
-
-        public bool IsCanceled { get; set; } = true;
-
-        public bool IsButton { get; set; }
-
-        private UIView Renderer => effect?.Element?.Handler?.PlatformView as UIView;
-
-        public override void TouchesBegan(NSSet touches, UIEvent evt)
-        {
-            if (effect?.IsDisabled ?? true)
-                return;
-
-            IsCanceled = false;
-            startPoint = GetTouchPoint(touches);
-
-            HandleTouch(TouchStatus.Started, TouchInteractionStatus.Started).SafeFireAndForget();
-
-            base.TouchesBegan(touches, evt);
-        }
-
-        public override void TouchesEnded(NSSet touches, UIEvent evt)
-        {
-            if (effect?.IsDisabled ?? true)
-                return;
-
-            HandleTouch(effect?.Status == TouchStatus.Started ? TouchStatus.Completed : TouchStatus.Canceled, TouchInteractionStatus.Completed).SafeFireAndForget();
-
-            IsCanceled = true;
-
-            base.TouchesEnded(touches, evt);
-        }
-
-        public override void TouchesCancelled(NSSet touches, UIEvent evt)
-        {
-            if (effect?.IsDisabled ?? true)
-                return;
-
-            HandleTouch(TouchStatus.Canceled, TouchInteractionStatus.Completed).SafeFireAndForget();
-
-            IsCanceled = true;
-
-            base.TouchesCancelled(touches, evt);
-        }
-
-        public override void TouchesMoved(NSSet touches, UIEvent evt)
-        {
-            if (effect?.IsDisabled ?? true)
-                return;
-
-            var disallowTouchThreshold = effect.DisallowTouchThreshold;
-            var point = GetTouchPoint(touches);
-            if (point != null && startPoint != null && disallowTouchThreshold > 0)
+            var diffX = Math.Abs(point.Value.X - startPoint.Value.X);
+            var diffY = Math.Abs(point.Value.Y - startPoint.Value.Y);
+            var maxDiff = Math.Max(diffX, diffY);
+            if (maxDiff > disallowTouchThreshold)
             {
-                var diffX = Math.Abs(point.Value.X - startPoint.Value.X);
-                var diffY = Math.Abs(point.Value.Y - startPoint.Value.Y);
-                var maxDiff = Math.Max(diffX, diffY);
-                if (maxDiff > disallowTouchThreshold)
-                {
-                    HandleTouch(TouchStatus.Canceled, TouchInteractionStatus.Completed).SafeFireAndForget();
-                    IsCanceled = true;
-                    base.TouchesMoved(touches, evt);
-                    return;
-                }
-            }
-
-            var status = point != null && Renderer?.Bounds.Contains(point.Value) is true
-                ? TouchStatus.Started
-                : TouchStatus.Canceled;
-
-            if (effect?.Status != status)
-                HandleTouch(status).SafeFireAndForget();
-
-            if (status == TouchStatus.Canceled)
+                HandleTouch(TouchStatus.Canceled, TouchInteractionStatus.Completed).SafeFireAndForget();
                 IsCanceled = true;
-
-            base.TouchesMoved(touches, evt);
+                base.TouchesMoved(touches, evt);
+                return;
+            }
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                effect = null;
-                Delegate.Dispose();
-            }
+        var status = point != null && Renderer?.Bounds.Contains(point.Value) is true
+            ? TouchStatus.Started
+            : TouchStatus.Canceled;
 
-            base.Dispose(disposing);
-        }
+        if (effect?.Status != status)
+            HandleTouch(status).SafeFireAndForget();
 
-        private CGPoint? GetTouchPoint(NSSet touches)
-            => Renderer != null ? (touches?.AnyObject as UITouch)?.LocationInView(Renderer) : null;
+        if (status == TouchStatus.Canceled)
+            IsCanceled = true;
 
-        public async Task HandleTouch(TouchStatus status, TouchInteractionStatus? interactionStatus = null)
-        {
-            if (IsCanceled || effect == null)
-                return;
-
-            if (effect?.IsDisabled ?? true)
-                return;
-
-            var canExecuteAction = effect.CanExecute;
-
-            if (interactionStatus == TouchInteractionStatus.Started)
-            {
-                effect?.HandleUserInteraction(TouchInteractionStatus.Started);
-                interactionStatus = null;
-            }
-
-            effect?.HandleTouch(status);
-            if (interactionStatus.HasValue)
-                effect?.HandleUserInteraction(interactionStatus.Value);
-
-            if (effect == null || !effect.NativeAnimation && !IsButton || !canExecuteAction && status == TouchStatus.Started)
-                return;
-
-            var control = effect.Element;
-            var renderer = (UIView)control?.Handler?.PlatformView;
-            if (renderer is default(UIView))
-                return;
-
-            var color = effect.NativeAnimationColor;
-            var radius = effect.NativeAnimationRadius;
-            var shadowRadius = effect.NativeAnimationShadowRadius;
-            var isStarted = status == TouchStatus.Started;
-            defaultRadius = (float?)(defaultRadius ?? renderer.Layer.CornerRadius);
-            defaultShadowRadius = (float?)(defaultShadowRadius ?? renderer.Layer.ShadowRadius);
-            if (defaultShadowOpacity != null)
-            {
-                defaultShadowOpacity = renderer.Layer.ShadowOpacity;
-            }
-
-            var tcs = new TaskCompletionSource<UIViewAnimatingPosition>();
-            UIViewPropertyAnimator.CreateRunningPropertyAnimator(.2, 0, UIViewAnimationOptions.AllowUserInteraction,
-                () =>
-                {
-                    if (color is null)
-                        renderer.Layer.Opacity = isStarted ? 0.5f : (float)control.Opacity;
-                    else
-                        renderer.Layer.BackgroundColor = (isStarted ? color : control.BackgroundColor).ToCGColor();
-
-                    renderer.Layer.CornerRadius = isStarted ? radius : defaultRadius.GetValueOrDefault();
-
-                    if (shadowRadius >= 0)
-                    {
-                        renderer.Layer.ShadowRadius = isStarted ? shadowRadius : defaultShadowRadius.GetValueOrDefault();
-                        renderer.Layer.ShadowOpacity = isStarted ? 0.7f : defaultShadowOpacity.GetValueOrDefault();
-                    }
-                }, endPos => tcs.SetResult(endPos));
-            await tcs.Task;
-        }
+        base.TouchesMoved(touches, evt);
     }
 
-    internal class TouchUITapGestureRecognizerDelegate : UIGestureRecognizerDelegate
+    protected override void Dispose(bool disposing)
     {
-        public override bool ShouldRecognizeSimultaneously(UIGestureRecognizer gestureRecognizer, UIGestureRecognizer otherGestureRecognizer)
+        if (disposing)
         {
-            if (gestureRecognizer is TouchUITapGestureRecognizer touchGesture && otherGestureRecognizer is UIPanGestureRecognizer &&
-                otherGestureRecognizer.State == UIGestureRecognizerState.Began)
+            effect = null;
+            Delegate.Dispose();
+        }
+
+        base.Dispose(disposing);
+    }
+
+    private CGPoint? GetTouchPoint(NSSet touches)
+        => Renderer != null ? (touches?.AnyObject as UITouch)?.LocationInView(Renderer) : null;
+
+    public async Task HandleTouch(TouchStatus status, TouchInteractionStatus? interactionStatus = null)
+    {
+        if (IsCanceled || effect == null)
+            return;
+
+        if (effect?.IsDisabled ?? true)
+            return;
+
+        var canExecuteAction = effect.CanExecute;
+
+        if (interactionStatus == TouchInteractionStatus.Started)
+        {
+            effect?.HandleUserInteraction(TouchInteractionStatus.Started);
+            interactionStatus = null;
+        }
+
+        effect?.HandleTouch(status);
+        if (interactionStatus.HasValue)
+            effect?.HandleUserInteraction(interactionStatus.Value);
+
+        if (effect == null || !effect.NativeAnimation && !IsButton || !canExecuteAction && status == TouchStatus.Started)
+            return;
+
+        var control = effect.Element;
+        var renderer = (UIView)control?.Handler?.PlatformView;
+        if (renderer is default(UIView))
+            return;
+
+        var color = effect.NativeAnimationColor;
+        var radius = effect.NativeAnimationRadius;
+        var shadowRadius = effect.NativeAnimationShadowRadius;
+        var isStarted = status == TouchStatus.Started;
+        defaultRadius = (float?)(defaultRadius ?? renderer.Layer.CornerRadius);
+        defaultShadowRadius = (float?)(defaultShadowRadius ?? renderer.Layer.ShadowRadius);
+        if (defaultShadowOpacity != null)
+        {
+            defaultShadowOpacity = renderer.Layer.ShadowOpacity;
+        }
+
+        var tcs = new TaskCompletionSource<UIViewAnimatingPosition>();
+        UIViewPropertyAnimator.CreateRunningPropertyAnimator(.2, 0, UIViewAnimationOptions.AllowUserInteraction,
+            () =>
             {
-                touchGesture.HandleTouch(TouchStatus.Canceled, TouchInteractionStatus.Completed).SafeFireAndForget();
-                touchGesture.IsCanceled = true;
-            }
+                if (color is null)
+                    renderer.Layer.Opacity = isStarted ? 0.5f : (float)control.Opacity;
+                else
+                    renderer.Layer.BackgroundColor = (isStarted ? color : control.BackgroundColor).ToCGColor();
 
-            return true;
-        }
+                renderer.Layer.CornerRadius = isStarted ? radius : defaultRadius.GetValueOrDefault();
 
-        public override bool ShouldReceiveTouch(UIGestureRecognizer recognizer, UITouch touch)
+                if (shadowRadius >= 0)
+                {
+                    renderer.Layer.ShadowRadius = isStarted ? shadowRadius : defaultShadowRadius.GetValueOrDefault();
+                    renderer.Layer.ShadowOpacity = isStarted ? 0.7f : defaultShadowOpacity.GetValueOrDefault();
+                }
+            }, endPos => tcs.SetResult(endPos));
+        await tcs.Task;
+    }
+}
+
+internal class TouchUITapGestureRecognizerDelegate : UIGestureRecognizerDelegate
+{
+    public override bool ShouldRecognizeSimultaneously(UIGestureRecognizer gestureRecognizer, UIGestureRecognizer otherGestureRecognizer)
+    {
+        if (gestureRecognizer is TouchUITapGestureRecognizer touchGesture && otherGestureRecognizer is UIPanGestureRecognizer &&
+            otherGestureRecognizer.State == UIGestureRecognizerState.Began)
         {
-            if (recognizer.View.IsDescendantOfView(touch.View))
-                return true;
-
-            var nativeView = recognizer.View;
-            if (nativeView is null)
-                return false;
-
-            if (nativeView == touch.View || nativeView.Subviews.Any(view => view == touch.View))
-                return true;
-
-            return false;
+            touchGesture.HandleTouch(TouchStatus.Canceled, TouchInteractionStatus.Completed).SafeFireAndForget();
+            touchGesture.IsCanceled = true;
         }
+
+        return true;
+    }
+
+    public override bool ShouldReceiveTouch(UIGestureRecognizer recognizer, UITouch touch)
+    {
+        if (recognizer.View.IsDescendantOfView(touch.View))
+            return true;
+
+        var nativeView = recognizer.View;
+        if (nativeView is null)
+            return false;
+
+        if (nativeView == touch.View || nativeView.Subviews.Any(view => view == touch.View))
+            return true;
+
+        return false;
     }
 }

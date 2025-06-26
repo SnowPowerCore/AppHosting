@@ -5,30 +5,29 @@ using AppHosting.Xamarin.Forms.Extensions;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 
-namespace AppHosting.Xamarin.Forms.Middleware
+namespace AppHosting.Xamarin.Forms.Middleware;
+
+public class ProcessElementMiddleware : IPageMiddleware
 {
-    public class ProcessElementMiddleware : IPageMiddleware
+    private readonly IAppVisualProcessor _appVisualProcessor;
+
+    public ProcessElementMiddleware(IAppVisualProcessor appVisualProcessor)
     {
-        private readonly IAppVisualProcessor _appVisualProcessor;
+        _appVisualProcessor = appVisualProcessor;
+    }
 
-        public ProcessElementMiddleware(IAppVisualProcessor appVisualProcessor)
+    public Task InvokeAsync(Page page, PageDelegate next)
+    {
+        var processElementAttrs = page.GetProcessElementsAttributes();
+        foreach (var attr in processElementAttrs)
         {
-            _appVisualProcessor = appVisualProcessor;
+            if (string.IsNullOrEmpty(attr.ControlName))
+                continue;
+
+            var desiredControl = page.GetControlData(attr.ControlName, out _, out _);
+
+            _appVisualProcessor.ElementProcessing?.Invoke((Element)desiredControl);
         }
-
-        public Task InvokeAsync(Page page, PageDelegate next)
-        {
-            var processElementAttrs = page.GetProcessElementsAttributes();
-            foreach (var attr in processElementAttrs)
-            {
-                if (string.IsNullOrEmpty(attr.ControlName))
-                    continue;
-
-                var desiredControl = page.GetControlData(attr.ControlName, out _, out _);
-
-                _appVisualProcessor.ElementProcessing?.Invoke((Element)desiredControl);
-            }
-            return next(page);
-        }
+        return next(page);
     }
 }

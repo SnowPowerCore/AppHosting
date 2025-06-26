@@ -6,29 +6,28 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 
-namespace AppHosting.Xamarin.Forms.Middleware
+namespace AppHosting.Xamarin.Forms.Middleware;
+
+public class BindingContextMiddleware : IElementMiddleware
 {
-    public class BindingContextMiddleware : IElementMiddleware
+    private readonly IServiceProvider _services;
+
+    public BindingContextMiddleware(IServiceProvider services)
     {
-        private readonly IServiceProvider _services;
+        _services = services;
+    }
 
-        public BindingContextMiddleware(IServiceProvider services)
-        {
-            _services = services;
-        }
+    public Task InvokeAsync(Element element, ElementDelegate next)
+    {
+        var bindingContextAttrs = element.GetElementBindingContextAttributes();
+        var xfElementType = element.GetType();
 
-        public Task InvokeAsync(Element element, ElementDelegate next)
-        {
-            var bindingContextAttrs = element.GetElementBindingContextAttributes();
-            var xfElementType = element.GetType();
+        var elementBindingContext = bindingContextAttrs.LastOrDefault(
+            x => string.IsNullOrEmpty(x.ControlName));
 
-            var elementBindingContext = bindingContextAttrs.LastOrDefault(
-                x => string.IsNullOrEmpty(x.ControlName));
+        if (elementBindingContext != default)
+            element.BindingContext = _services.GetService(elementBindingContext.BindingContextType);
 
-            if (elementBindingContext != default)
-                element.BindingContext = _services.GetService(elementBindingContext.BindingContextType);
-
-            return next(element);
-        }
+        return next(element);
     }
 }

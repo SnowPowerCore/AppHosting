@@ -5,29 +5,28 @@ using AppHosting.Xamarin.Forms.Abstractions.Interfaces.Factory;
 using AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Processors;
 using System;
 
-namespace AppHosting.Xamarin.Forms.Services.Processors
+namespace AppHosting.Xamarin.Forms.Services.Processors;
+
+public class AppVisualProcessor : IAppVisualProcessor
 {
-    public class AppVisualProcessor : IAppVisualProcessor
+    public PageDelegate PageProcessing { get; }
+
+    public ElementDelegate ElementProcessing { get; }
+
+    public AppVisualProcessor(IPageBuilderFactory pageBuilderFactory,
+                              IElementBuilderFactory elementBuilderFactory,
+                              IPageElementConfigure pageElementConfigure)
     {
-        public PageDelegate PageProcessing { get; }
+        var pageBuilder = pageBuilderFactory.CreatePageBuilder();
+        var elementBuilder = elementBuilderFactory.CreateElementBuilder();
 
-        public ElementDelegate ElementProcessing { get; }
+        Action<IPageBuilder> configurePage = pageElementConfigure.ConfigurePage;
+        configurePage(pageBuilder);
 
-        public AppVisualProcessor(IPageBuilderFactory pageBuilderFactory,
-                                  IElementBuilderFactory elementBuilderFactory,
-                                  IPageElementConfigure pageElementConfigure)
-        {
-            var pageBuilder = pageBuilderFactory.CreatePageBuilder();
-            var elementBuilder = elementBuilderFactory.CreateElementBuilder();
+        Action<IElementBuilder> configureElement = pageElementConfigure.ConfigureElement;
+        configureElement(elementBuilder);
 
-            Action<IPageBuilder> configurePage = pageElementConfigure.ConfigurePage;
-            configurePage(pageBuilder);
-
-            Action<IElementBuilder> configureElement = pageElementConfigure.ConfigureElement;
-            configureElement(elementBuilder);
-
-            PageProcessing = pageBuilder.Build();
-            ElementProcessing = elementBuilder.Build();
-        }
+        PageProcessing = pageBuilder.Build();
+        ElementProcessing = elementBuilder.Build();
     }
 }

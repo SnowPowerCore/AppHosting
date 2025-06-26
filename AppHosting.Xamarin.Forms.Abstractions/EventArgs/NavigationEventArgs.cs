@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace AppHosting.Xamarin.Forms.Abstractions.EventArgs
-{
-    public class NavigationEventArgs
-    {
-        public Type NavigationPageType { get; set; }
+namespace AppHosting.Xamarin.Forms.Abstractions.EventArgs;
 
-        public bool Cancel { get; set; } = false;
-    }
+public class NavigationEventArgs
+{
+    public Type NavigationPageType { get; set; }
+
+    public bool Cancel { get; set; } = false;
 }

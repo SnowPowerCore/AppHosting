@@ -1,8 +1,7 @@
-﻿namespace AppHosting.Xamarin.Forms.Shared.Enums
+﻿namespace AppHosting.Xamarin.Forms.Shared.Enums;
+
+public enum TouchState
 {
-    public enum TouchState
-    {
-        Normal,
-        Pressed
-    }
+    Normal,
+    Pressed
 }

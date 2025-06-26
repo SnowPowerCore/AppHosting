@@ -4,16 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Navigation
+namespace AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Navigation;
+
+public interface IPopupNavigation
 {
-    public interface IPopupNavigation
-    {
-        event EventHandler<NavigationEventArgs> PopupNavigating;
+    event EventHandler<NavigationEventArgs> PopupNavigating;
 
-        IReadOnlyList<PopupPage> PopupPages { get; }
+    IReadOnlyList<PopupPage> PopupPages { get; }
 
-        Task OpenPopupAsync(string routeWithParams, bool animated = true);
+    Task OpenPopupAsync(string routeWithParams, bool animated = true);
 
-        Task ClosePopupAsync(bool animated = true);
-    }
+    Task ClosePopupAsync(bool animated = true);
 }

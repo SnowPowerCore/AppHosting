@@ -1,8 +1,7 @@
-﻿namespace AppHosting.Xamarin.Forms.Shared.Enums
+﻿namespace AppHosting.Xamarin.Forms.Shared.Enums;
+
+public enum HoverStatus
 {
-    public enum HoverStatus
-    {
-        Entered,
-        Exited
-    }
+    Entered,
+    Exited
 }

@@ -4,22 +4,21 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using NavigationEventArgs = AppHosting.Xamarin.Forms.Abstractions.EventArgs.NavigationEventArgs;
 
-namespace AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Navigation
+namespace AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Navigation;
+
+public interface IPageNavigation
 {
-    public interface IPageNavigation
-    {
-        event EventHandler<NavigationEventArgs> PageNavigating;
+    event EventHandler<NavigationEventArgs> PageNavigating;
 
-        IReadOnlyList<Page> Pages { get; }
+    IReadOnlyList<Page> Pages { get; }
 
-        void DetermineAndSetMainPage<TPage>();
+    void DetermineAndSetMainPage<TPage>();
 
-        Task SwitchMainPageAsync<TPage>(TPage page);
+    Task SwitchMainPageAsync<TPage>(TPage page);
 
-        Task NavigateToPageAsync(string routeWithParams, bool animated = true);
+    Task NavigateToPageAsync(string routeWithParams, bool animated = true);
 
-        Task NavigateBackAsync(bool animated = true);
+    Task NavigateBackAsync(bool animated = true);
 
-        Task NavigateToRootAsync(bool animated = true);
-    }
+    Task NavigateToRootAsync(bool animated = true);
 }

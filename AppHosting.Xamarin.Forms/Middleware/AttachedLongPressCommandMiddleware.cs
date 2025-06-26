@@ -4,15 +4,14 @@ using AppHosting.Xamarin.Forms.Extensions;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 
-namespace AppHosting.Xamarin.Forms.Middleware
+namespace AppHosting.Xamarin.Forms.Middleware;
+
+public class AttachedLongPressCommandMiddleware : IElementMiddleware
 {
-    public class AttachedLongPressCommandMiddleware : IElementMiddleware
+    public Task InvokeAsync(Element element, ElementDelegate next)
     {
-        public Task InvokeAsync(Element element, ElementDelegate next)
-        {
-            var attachedCommandAttrs = element.GetElementAttachedLongPressCommandAttributes();
-            var updatedElement = element.AddAttachedLongPressCommands(attachedCommandAttrs);
-            return next(updatedElement);
-        }
+        var attachedCommandAttrs = element.GetElementAttachedLongPressCommandAttributes();
+        var updatedElement = element.AddAttachedLongPressCommands(attachedCommandAttrs);
+        return next(updatedElement);
     }
 }

@@ -6,40 +6,39 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.ApplicationModel;
 
-namespace AppHosting.Xamarin.Forms.Controls
+namespace AppHosting.Xamarin.Forms.Controls;
+
+public class HostedTabbedPage : TabbedPage
 {
-    public class HostedTabbedPage : TabbedPage
+    private readonly List<Guid> _processedTabItems = new();
+
+    private readonly IAppVisualProcessor _appVisualProcessor;
+
+    private HostedTabbedPage() : base() { }
+
+    public HostedTabbedPage(IAppVisualProcessor appVisualProcessor) : base()
     {
-        private readonly List<Guid> _processedTabItems = new();
-
-        private readonly IAppVisualProcessor _appVisualProcessor;
-
-        private HostedTabbedPage() : base() { }
-
-        public HostedTabbedPage(IAppVisualProcessor appVisualProcessor) : base()
-        {
-            _appVisualProcessor = appVisualProcessor;
-        }
-
-        protected override void OnChildAdded(Element child)
-        {
-            base.OnChildAdded(child);
-
-            if (child is NavigationPage navigationPage)
-                ProcessPageAsync(navigationPage.CurrentPage).SafeFireAndForget();
-            else if (child is Page page)
-                ProcessPageAsync(page).SafeFireAndForget();
-        }
-
-        private Task ProcessPageAsync(Page page) =>
-            MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                if (_processedTabItems.Contains(page.Id))
-                    return Task.CompletedTask;
-                var elementTask = _appVisualProcessor.ElementProcessing?.Invoke(page);
-                var pageTask = _appVisualProcessor.PageProcessing?.Invoke(page);
-                _processedTabItems.Add(page.Id);
-                return Task.WhenAll(elementTask, pageTask);
-            });
+        _appVisualProcessor = appVisualProcessor;
     }
+
+    protected override void OnChildAdded(Element child)
+    {
+        base.OnChildAdded(child);
+
+        if (child is NavigationPage navigationPage)
+            ProcessPageAsync(navigationPage.CurrentPage).SafeFireAndForget();
+        else if (child is Page page)
+            ProcessPageAsync(page).SafeFireAndForget();
+    }
+
+    private Task ProcessPageAsync(Page page) =>
+        MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            if (_processedTabItems.Contains(page.Id))
+                return Task.CompletedTask;
+            var elementTask = _appVisualProcessor.ElementProcessing?.Invoke(page);
+            var pageTask = _appVisualProcessor.PageProcessing?.Invoke(page);
+            _processedTabItems.Add(page.Id);
+            return Task.WhenAll(elementTask, pageTask);
+        });
 }

@@ -4,15 +4,14 @@ using AppHosting.Xamarin.Forms.Extensions;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 
-namespace AppHosting.Xamarin.Forms.Middleware
+namespace AppHosting.Xamarin.Forms.Middleware;
+
+public class CommandMiddleware : IElementMiddleware
 {
-    public class CommandMiddleware : IElementMiddleware
+    public Task InvokeAsync(Element element, ElementDelegate next)
     {
-        public Task InvokeAsync(Element element, ElementDelegate next)
-        {
-            var commandAttrs = element.GetElementCommandAttributes();
-            var updatedElement = element.AddCommands(commandAttrs);
-            return next(updatedElement);
-        }
+        var commandAttrs = element.GetElementCommandAttributes();
+        var updatedElement = element.AddCommands(commandAttrs);
+        return next(updatedElement);
     }
 }

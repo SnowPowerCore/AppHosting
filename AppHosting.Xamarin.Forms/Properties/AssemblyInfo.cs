@@ -1,4 +1,3 @@
-﻿namespace AppHosting.Xamarin.Forms.Properties
-{
-    public class IsExternalInit { }
-}
+﻿namespace AppHosting.Xamarin.Forms.Properties;
+
+public class IsExternalInit { }

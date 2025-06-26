@@ -3,48 +3,47 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Maui.Controls;
 
-namespace AppHosting.Xamarin.Forms.Extensions
+namespace AppHosting.Xamarin.Forms.Extensions;
+
+public static class RoutingExtensions
 {
-    public static class RoutingExtensions
+    public static T GetElementFromRouting<T>(
+        this string routeWithParams) where T : Element
     {
-        public static T GetElementFromRouting<T>(
-            this string routeWithParams) where T : Element
+        var routeAndParams = routeWithParams.Split('?');
+
+        T xfElement;
+
+        if (routeAndParams.Length > 1)
         {
-            var routeAndParams = routeWithParams.Split('?');
-
-            T xfElement;
-
-            if (routeAndParams.Length > 1)
+            var routeName = routeAndParams.FirstOrDefault();
+            var query = routeAndParams.LastOrDefault();
+            var queryData = query.ParseQueryString();
+            xfElement = (T)Routing.GetOrCreateContent(routeName);
+            var queryPropertyAttrs = (QueryPropertyAttribute[])Attribute.GetCustomAttributes(
+                xfElement.GetType(),
+                typeof(QueryPropertyAttribute));
+            if (queryPropertyAttrs != default && queryPropertyAttrs.Length > 0)
             {
-                var routeName = routeAndParams.FirstOrDefault();
-                var query = routeAndParams.LastOrDefault();
-                var queryData = query.ParseQueryString();
-                xfElement = (T)Routing.GetOrCreateContent(routeName);
-                var queryPropertyAttrs = (QueryPropertyAttribute[])Attribute.GetCustomAttributes(
-                    xfElement.GetType(),
-                    typeof(QueryPropertyAttribute));
-                if (queryPropertyAttrs != default && queryPropertyAttrs.Length > 0)
+                foreach (var attr in queryPropertyAttrs)
                 {
-                    foreach (var attr in queryPropertyAttrs)
-                    {
-                        _ = queryData.TryGetValue(attr.QueryId, out var value);
-                        var prop = xfElement
-                            .GetType()
-                            .GetProperty(attr.Name, BindingFlags.Public | BindingFlags.Instance);
-                        if (null != prop && prop.CanWrite)
-                            prop.SetValue(xfElement, value, null);
-                    }
+                    _ = queryData.TryGetValue(attr.QueryId, out var value);
+                    var prop = xfElement
+                        .GetType()
+                        .GetProperty(attr.Name, BindingFlags.Public | BindingFlags.Instance);
+                    if (null != prop && prop.CanWrite)
+                        prop.SetValue(xfElement, value, null);
                 }
             }
-            else
-            {
-                xfElement = (T)Routing.GetOrCreateContent(routeWithParams);
-            }
-
-            return xfElement;
+        }
+        else
+        {
+            xfElement = (T)Routing.GetOrCreateContent(routeWithParams);
         }
 
-        public static string GetDestinationRoute(this string route) =>
-            route.Split('/').LastOrDefault();
+        return xfElement;
     }
+
+    public static string GetDestinationRoute(this string route) =>
+        route.Split('/').LastOrDefault();
 }

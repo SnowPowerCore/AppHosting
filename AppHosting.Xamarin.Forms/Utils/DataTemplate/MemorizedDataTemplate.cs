@@ -2,24 +2,23 @@
 using System;
 using System.Collections.Generic;
 
-namespace AppHosting.Xamarin.Forms.Utils.DataTemplate
+namespace AppHosting.Xamarin.Forms.Utils.DataTemplate;
+
+public class MemorizedDataTemplate : Microsoft.Maui.Controls.DataTemplate
 {
-    public class MemorizedDataTemplate : Microsoft.Maui.Controls.DataTemplate
+    private static readonly Dictionary<Type, object> _createdContents = new();
+
+    public MemorizedDataTemplate() { }
+
+    public MemorizedDataTemplate(TypeWrapper typeWrapper) : base(() =>
     {
-        private static readonly Dictionary<Type, object> _createdContents = new();
+        var type = typeWrapper.Type;
+        if (_createdContents.ContainsKey(type))
+            return _createdContents[type];
 
-        public MemorizedDataTemplate() { }
-
-        public MemorizedDataTemplate(TypeWrapper typeWrapper) : base(() =>
-        {
-            var type = typeWrapper.Type;
-            if (_createdContents.ContainsKey(type))
-                return _createdContents[type];
-
-            var data = Activator.CreateInstance(type);
-            _createdContents.Add(type, data);
-            return data;
-        })
-        { }
-    }
+        var data = Activator.CreateInstance(type);
+        _createdContents.Add(type, data);
+        return data;
+    })
+    { }
 }
