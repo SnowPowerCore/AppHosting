@@ -15,15 +15,15 @@ namespace AppHosting.Xamarin.Forms.Services.Processors
 
         public AppVisualProcessor(IPageBuilderFactory pageBuilderFactory,
                                   IElementBuilderFactory elementBuilderFactory,
-                                  IAppStartup startup)
+                                  IPageElementConfigure pageElementConfigure)
         {
             var pageBuilder = pageBuilderFactory.CreatePageBuilder();
             var elementBuilder = elementBuilderFactory.CreateElementBuilder();
 
-            Action<IPageBuilder> configurePage = startup.ConfigurePage;
+            Action<IPageBuilder> configurePage = pageElementConfigure.ConfigurePage;
             configurePage(pageBuilder);
 
-            Action<IElementBuilder> configureElement = startup.ConfigureElement;
+            Action<IElementBuilder> configureElement = pageElementConfigure.ConfigureElement;
             configureElement(elementBuilder);
 
             PageProcessing = pageBuilder.Build();

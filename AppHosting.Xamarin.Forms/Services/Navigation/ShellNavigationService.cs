@@ -3,6 +3,7 @@ using AppHosting.Xamarin.Forms.Abstractions.Interfaces.Services.Processors;
 using AppHosting.Xamarin.Forms.Controls;
 using AppHosting.Xamarin.Forms.Extensions;
 using AsyncAwaitBestPractices;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using RGPopup.Maui.Pages;
 using RGPopup.Maui.Services;
@@ -46,7 +47,7 @@ namespace AppHosting.Xamarin.Forms.Services.Navigation
                 ProcessPageAsync(shell).SafeFireAndForget();
                 return CloseModalAsync()
                     .ContinueWith(t =>
-                        Device.InvokeOnMainThreadAsync(() =>
+                        MainThread.InvokeOnMainThreadAsync(() =>
                             Application.Current.MainPage = shell),
                                 TaskContinuationOptions.OnlyOnRanToCompletion);
             }
@@ -77,7 +78,7 @@ namespace AppHosting.Xamarin.Forms.Services.Navigation
                 if (!navigatingArgs.Cancel)
                 {
                     ProcessPageAsync(xfModal).SafeFireAndForget();
-                    return Device.InvokeOnMainThreadAsync(
+                    return MainThread.InvokeOnMainThreadAsync(
                         () => Shell.Current.Navigation.PushModalAsync(xfModal, animated));
                 }
                 else
@@ -90,7 +91,7 @@ namespace AppHosting.Xamarin.Forms.Services.Navigation
 
         public Task CloseModalAsync(bool animated = true) =>
             Shell.Current.Navigation.ModalStack.Count > 0
-                ? Device.InvokeOnMainThreadAsync(
+                ? MainThread.InvokeOnMainThreadAsync(
                     () => Shell.Current.Navigation.PopModalAsync(animated))
                 : Task.CompletedTask;
 
@@ -106,7 +107,7 @@ namespace AppHosting.Xamarin.Forms.Services.Navigation
             if (!navigatingArgs.Cancel)
             {
                 ProcessPageAsync(popupPage).SafeFireAndForget();
-                return Device.InvokeOnMainThreadAsync(
+                return MainThread.InvokeOnMainThreadAsync(
                     () => PopupNavigation.Instance.PushAsync(popupPage, animated));
             }
             else
@@ -117,7 +118,7 @@ namespace AppHosting.Xamarin.Forms.Services.Navigation
 
         public Task ClosePopupAsync(bool animated = true) =>
             PopupNavigation.Instance.PopupStack.Count > 0
-                ? Device.InvokeOnMainThreadAsync(
+                ? MainThread.InvokeOnMainThreadAsync(
                     () => PopupNavigation.Instance.PopAsync(animated))
                 : Task.CompletedTask;
 
@@ -134,7 +135,7 @@ namespace AppHosting.Xamarin.Forms.Services.Navigation
             if (!navigatingArgs.Cancel)
             {
                 ProcessPageAsync(page).SafeFireAndForget();
-                return Device.InvokeOnMainThreadAsync(
+                return MainThread.InvokeOnMainThreadAsync(
                     () => Shell.Current.Navigation.PushAsync(page, animated));
             }
             else
@@ -145,23 +146,23 @@ namespace AppHosting.Xamarin.Forms.Services.Navigation
 
         public Task NavigateBackAsync(bool animated = true) =>
             Shell.Current.Navigation.NavigationStack.Count > 1
-                ? Device.InvokeOnMainThreadAsync(
+                ? MainThread.InvokeOnMainThreadAsync(
                     () => Shell.Current.Navigation.PopAsync(animated))
                 : Task.CompletedTask;
 
         public Task NavigateToRootAsync(bool animated = true)
         {
             Shell.Current.FlyoutIsPresented = false;
-            return Device.InvokeOnMainThreadAsync(
+            return MainThread.InvokeOnMainThreadAsync(
                 () => Shell.Current.Navigation.PopToRootAsync(animated));
         }
 
         public Task SwitchItemAsync(int index) =>
-            Device.InvokeOnMainThreadAsync(
+            MainThread.InvokeOnMainThreadAsync(
                 () => Shell.Current.CurrentItem = Shell.Current.Items.ElementAtOrDefault(index));
 
         private Task ProcessPageAsync(Page page) =>
-            Device.InvokeOnMainThreadAsync(() =>
+            MainThread.InvokeOnMainThreadAsync(() =>
             {
                 if (_processedItems.Contains(page.Id))
                     return Task.CompletedTask;

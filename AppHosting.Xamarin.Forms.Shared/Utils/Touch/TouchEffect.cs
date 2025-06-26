@@ -149,21 +149,21 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             nameof(NormalBackgroundColor),
             typeof(Color),
             typeof(TouchEffect),
-            default,
+            Colors.Transparent,
             propertyChanged: ForceUpdateStateAndTryGenerateEffect);
 
         public static readonly BindableProperty HoveredBackgroundColorProperty = BindableProperty.CreateAttached(
             nameof(HoveredBackgroundColor),
             typeof(Color),
             typeof(TouchEffect),
-            default,
+            Colors.Transparent,
             propertyChanged: ForceUpdateStateAndTryGenerateEffect);
 
         public static readonly BindableProperty PressedBackgroundColorProperty = BindableProperty.CreateAttached(
             nameof(PressedBackgroundColor),
             typeof(Color),
             typeof(TouchEffect),
-            default,
+            Colors.Transparent,
             propertyChanged: ForceUpdateStateAndTryGenerateEffect);
 
         public static readonly BindableProperty NormalOpacityProperty = BindableProperty.CreateAttached(
@@ -402,7 +402,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             nameof(NativeAnimationColor),
             typeof(Color),
             typeof(TouchEffect),
-            default,
+            Colors.Transparent,
             propertyChanged: TryGenerateEffect);
 
         public static readonly BindableProperty NativeAnimationRadiusProperty = BindableProperty.CreateAttached(
@@ -487,8 +487,6 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
         private readonly WeakEventManager weakEventManager = new();
 
         private VisualElement? element;
-
-        public TouchEffect() : base($"{nameof(AppHosting)}.{nameof(TouchEffect)}") { }
 
         public static bool GetIsAvailable(BindableObject? bindable)
             => (bool)(bindable?.GetValue(IsAvailableProperty) ?? throw new ArgumentNullException(nameof(bindable)));
@@ -1137,10 +1135,10 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             => gestureManager.HandleTouch(this, status);
 
         public void HandleUserInteraction(TouchInteractionStatus interactionStatus)
-            => gestureManager.HandleUserInteraction(this, interactionStatus);
+            => GestureManager.HandleUserInteraction(this, interactionStatus);
 
         public void HandleHover(HoverStatus status)
-            => gestureManager.HandleHover(this, status);
+            => GestureManager.HandleHover(this, status);
 
         internal void RaiseStateChanged()
         {

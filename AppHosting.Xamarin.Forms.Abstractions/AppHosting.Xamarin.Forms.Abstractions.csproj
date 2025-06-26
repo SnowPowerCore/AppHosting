@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.80" />
     <PackageReference Condition="'$(TargetFramework)'=='net9.0'" Include="RGPopup.Maui.Temp" Version="1.1.4" />
     <PackageReference Condition="'$(TargetFramework)'=='net9.0-android'" Include="RGPopup.Maui" Version="1.1.2" />
     <PackageReference Condition="'$(TargetFramework)'=='net9.0-ios'" Include="RGPopup.Maui" Version="1.1.2" />

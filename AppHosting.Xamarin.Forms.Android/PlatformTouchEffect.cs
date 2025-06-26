@@ -2,7 +2,6 @@
 using Android.Content.Res;
 using Android.Graphics.Drawables;
 using Android.OS;
-using Android.Runtime;
 using Android.Views;
 using Android.Views.Accessibility;
 using Android.Widget;
@@ -441,7 +440,7 @@ namespace AppHosting.Xamarin.Forms.Android
             rippleView.Background = ripple;
         }
 
-        private ColorStateList GetColorStateList(XColor color)
+        private static ColorStateList GetColorStateList(XColor color)
         {
             var animationColor = color;
             if (animationColor.Alpha == 0 && animationColor.Red == 0 && animationColor.Green == 0 && animationColor.Blue == 0)

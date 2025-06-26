@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.ApplicationModel;
 
 namespace AppHosting.Xamarin.Forms.Controls
 {
@@ -31,7 +32,7 @@ namespace AppHosting.Xamarin.Forms.Controls
         }
 
         private Task ProcessPageAsync(Page page) =>
-            Device.InvokeOnMainThreadAsync(() =>
+            MainThread.InvokeOnMainThreadAsync(() =>
             {
                 if (_processedTabItems.Contains(page.Id))
                     return Task.CompletedTask;

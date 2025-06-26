@@ -1,5 +1,4 @@
 ﻿using AppHosting.Xamarin.Forms.Shared.Enums;
-using AppHosting.Xamarin.Forms.Shared.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +8,7 @@ using Microsoft.Maui.Controls;
 using static System.Math;
 using Microsoft.Maui;
 using Microsoft.Maui.Graphics;
+using AppHosting.Xamarin.Forms.Shared.Extensions;
 
 namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
 {
@@ -86,7 +86,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
                 OnTapped(sender);
         }
 
-        internal void HandleUserInteraction(TouchEffect sender, TouchInteractionStatus interactionStatus)
+        internal static void HandleUserInteraction(TouchEffect sender, TouchInteractionStatus interactionStatus)
         {
             if (sender.InteractionStatus != interactionStatus)
             {
@@ -95,7 +95,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             }
         }
 
-        internal void HandleHover(TouchEffect sender, HoverStatus status)
+        internal static void HandleHover(TouchEffect sender, HoverStatus status)
         {
             if (!sender.Element?.IsEnabled ?? true)
                 return;
@@ -235,7 +235,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
                 return;
 
             if (Device.RuntimePlatform == Device.Android)
-                HandleCollectionViewSelection(sender);
+                GestureManager.HandleCollectionViewSelection(sender);
 
             if (sender.Element is IButtonController button)
                 button.SendClicked();
@@ -243,7 +243,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             sender.RaiseCompleted();
         }
 
-        private void HandleCollectionViewSelection(TouchEffect sender)
+        private static void HandleCollectionViewSelection(TouchEffect sender)
         {
             if (!sender.Element.TryFindParentElementWithParentOfType(out var result, out CollectionView parent))
                 return;
@@ -281,7 +281,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             element.AbortAnimations();
         }
 
-        private void UpdateStatusAndState(TouchEffect sender, TouchStatus status, TouchState state)
+        private static void UpdateStatusAndState(TouchEffect sender, TouchStatus status, TouchState state)
         {
             sender.Status = status;
             sender.RaiseStatusChanged();
@@ -293,7 +293,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             }
         }
 
-        private void UpdateVisualState(VisualElement visualElement, TouchState touchState, HoverState hoverState)
+        private static void UpdateVisualState(VisualElement visualElement, TouchState touchState, HoverState hoverState)
         {
             var state = touchState == TouchState.Pressed
                 ? TouchEffect.PressedVisualState
@@ -304,7 +304,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             VisualStateManager.GoToState(visualElement, state);
         }
 
-        private async Task SetBackgroundImageAsync(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, CancellationToken token)
+        private static async Task SetBackgroundImageAsync(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, CancellationToken token)
         {
             var normalBackgroundImageSource = sender.NormalBackgroundImageSource;
             var pressedBackgroundImageSource = sender.PressedBackgroundImageSource;
@@ -393,7 +393,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             return element.ColorTo(color, (uint)duration, easing);
         }
 
-        private Task SetOpacity(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, Easing easing)
+        private static Task SetOpacity(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, Easing easing)
         {
             var normalOpacity = sender.NormalOpacity;
             var pressedOpacity = sender.PressedOpacity;
@@ -462,7 +462,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             return animationCompletionSource.Task;
         }
 
-        private Task SetTranslation(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, Easing easing)
+        private static Task SetTranslation(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, Easing easing)
         {
             var normalTranslationX = sender.NormalTranslationX;
             var pressedTranslationX = sender.PressedTranslationX;
@@ -511,7 +511,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             return element?.TranslateTo(translationX, translationY, (uint)Abs(duration), easing) ?? Task.FromResult(false);
         }
 
-        private Task SetRotation(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, Easing easing)
+        private static Task SetRotation(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, Easing easing)
         {
             var normalRotation = sender.NormalRotation;
             var pressedRotation = sender.PressedRotation;
@@ -542,7 +542,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             return element?.RotateTo(rotation, (uint)Abs(duration), easing) ?? Task.FromResult(false);
         }
 
-        private Task SetRotationX(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, Easing easing)
+        private static Task SetRotationX(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, Easing easing)
         {
             var normalRotationX = sender.NormalRotationX;
             var pressedRotationX = sender.PressedRotationX;
@@ -571,7 +571,7 @@ namespace AppHosting.Xamarin.Forms.Shared.Utils.Touch
             return element?.RotateXTo(rotationX, (uint)Abs(duration), easing) ?? Task.FromResult(false);
         }
 
-        private Task SetRotationY(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, Easing easing)
+        private static Task SetRotationY(TouchEffect sender, TouchState touchState, HoverState hoverState, int duration, Easing easing)
         {
             var normalRotationY = sender.NormalRotationY;
             var pressedRotationY = sender.PressedRotationY;

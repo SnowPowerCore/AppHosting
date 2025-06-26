@@ -13,7 +13,7 @@ namespace AppHosting.Xamarin.Forms.Extensions
                 typeof(BindingContextAttribute));
 
             return bindingContextAttrs is default(BindingContextAttribute[])
-                ? Array.Empty<BindingContextAttribute>()
+                ? []
                 : bindingContextAttrs;
         }
 
@@ -25,7 +25,7 @@ namespace AppHosting.Xamarin.Forms.Extensions
                 true);
 
             return commandAttrs is default(CommandAttribute[])
-                ? Array.Empty<CommandAttribute>()
+                ? []
                 : commandAttrs;
         }
 
@@ -37,7 +37,7 @@ namespace AppHosting.Xamarin.Forms.Extensions
                 true);
 
             return commandAttrs is default(AttachedCommandAttribute[])
-                ? Array.Empty<AttachedCommandAttribute>()
+                ? []
                 : commandAttrs;
         }
 
@@ -49,7 +49,7 @@ namespace AppHosting.Xamarin.Forms.Extensions
                 true);
 
             return commandAttrs is default(AttachedLongPressCommandAttribute[])
-                ? Array.Empty<AttachedLongPressCommandAttribute>()
+                ? []
                 : commandAttrs;
         }
 
@@ -61,7 +61,7 @@ namespace AppHosting.Xamarin.Forms.Extensions
                 true);
 
             return commandAttrs is default(AsyncCommandAttribute[])
-                ? Array.Empty<AsyncCommandAttribute>()
+                ? []
                 : commandAttrs;
         }
 
@@ -73,7 +73,7 @@ namespace AppHosting.Xamarin.Forms.Extensions
                 true);
 
             return commandAttrs is default(AttachedAsyncCommandAttribute[])
-                ? Array.Empty<AttachedAsyncCommandAttribute>()
+                ? []
                 : commandAttrs;
         }
 
@@ -85,7 +85,7 @@ namespace AppHosting.Xamarin.Forms.Extensions
                 true);
 
             return commandAttrs is default(AttachedAsyncLongPressCommandAttribute[])
-                ? Array.Empty<AttachedAsyncLongPressCommandAttribute>()
+                ? []
                 : commandAttrs;
         }
 
@@ -96,7 +96,7 @@ namespace AppHosting.Xamarin.Forms.Extensions
                 typeof(ProcessElementAttribute));
 
             return bindingContextAttrs is default(ProcessElementAttribute[])
-                ? Array.Empty<ProcessElementAttribute>()
+                ? []
                 : bindingContextAttrs;
         }
 
