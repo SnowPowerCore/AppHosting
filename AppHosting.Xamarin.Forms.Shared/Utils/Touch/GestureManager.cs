@@ -229,13 +229,13 @@ internal sealed class GestureManager
         defaultBackgroundColor = default;
     }
 
-    internal void OnTapped(TouchEffect sender)
+    internal static void OnTapped(TouchEffect sender)
     {
         if (!sender.CanExecute || sender.LongPressCommand != null && sender.InteractionStatus == TouchInteractionStatus.Completed)
             return;
 
         if (Device.RuntimePlatform == Device.Android)
-            GestureManager.HandleCollectionViewSelection(sender);
+            HandleCollectionViewSelection(sender);
 
         if (sender.Element is IButtonController button)
             button.SendClicked();
